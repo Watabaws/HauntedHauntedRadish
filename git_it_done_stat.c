@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -25,38 +26,76 @@ char * checksize(long o_size){
 
 }
 
-char * ret_perms(int mode){
-	if(mode >> 1 == mode >> 1 << 1)
-	char * oct_mode;
-	sprintf(oct_mode, "%o", mode);
-	while(mode){
-		if(oct_mode[strlen(oct_mode) - 1] == '7'){
-			return strcat(ret_perms(mode / 10), "rwx");
-		}
-		else if(oct_mode[strlen(oct_mode) - 1] == '6'){
-			return strcat(ret_perms(mode/10), "rw-");
-		}
-		else if(oct_mode[strlen(oct_mode) - 1] == '5'){
-			return strcat(ret_perms(mode/10), "r-x");
-		}
-		else if(oct_mode[strlen(oct_mode) - 1] == '4'){
-			return strcat(ret_perms(mode/10), "r--");
-		}
-		else if(oct_mode[strlen(oct_mode) - 1] == '3'){
-			return strcat(ret_perms(mode/10), "-wx");
-		}
-		else if(oct_mode[strlen(oct_mode) - 1] == '2'){
-			return strcat(ret_perms(mode/10), "-w-");
-		}
-		else if(oct_mode[strlen(oct_mode) - 1] == '1'){
-			return strcat(ret_perms(mode/10), "--x");
-		}
-		else{
-			return "-";
-		}
+int check_shift(int mode){
+	int shifted = mode >> 1;
+	int shifted_back = shifted << 1;
 
-	}
+	return !(shifted == shifted_back);
 }
+
+char * ret_perms(int mode){
+	char * perms = (char*)malloc(10);
+	perms[10] = 0;
+
+	if(check_shift(mode)){
+		perms[9] = 'x';
+	}
+	else perms[9] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[8] = 'w';
+	} 
+	else perms[8] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[7] = 'r';
+	}
+	else perms[7] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[6] = 'x';
+	}
+	else perms[6] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[5] = 'w';
+	} 
+	else perms[5] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[4] = 'r';
+	}
+	else perms[4] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[3] = 'x';
+	}
+	else perms[3] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[2] = 'w';
+	} 
+	else perms[2] = '-';
+	mode = mode >> 1;
+
+	if(check_shift(mode)){
+		perms[1] = 'r';
+	}
+	else perms[1] = '-';
+
+	perms[0] = '-';
+
+	return perms;
+}
+
+
 
 
 
@@ -71,10 +110,9 @@ int main(){
 	printf("The time of last access is: %s\n", ctime(&matadeta.st_atime));
 
 	printf("Here's some nicer formatting:\n\n");
-	char size[256];
 
 	printf("The size of the file is %s\n", checksize(matadeta.st_size));
-	printf("The permissions for this file are: %s", ret_perms(matadeta.st_mode));
+	printf("The permissions for this file are: %s\n", ret_perms(matadeta.st_mode));
 
 
 
